@@ -68,27 +68,32 @@ final class MainController extends AbstractController
         ]);
     }
 
-    #[Route('/liste/{page}', name: 'list')]
+
+    #[Route("/liste/{page}", name: "list")]
     public function list(ContactRepository $repository, Request $request, ?int $page = 1): Response
     {
-        $status = $request->query->get('status', 'all');
-        $contacts = ($status === 'all')
-            ? $repository->findAll()
-            : $repository->findBy(['status' => $status]);
-        $search = $request->query->get('search');
-        $contacts = $search
-            ? $repository->search($search)
-            : $repository->findAll();
         $limit = 2;
-        $contacts = $repository->paginate($page, $limit);
-        $totalPages = ceil($repository->count() / $limit);
+        $search = $request->query->get("search");
+        $status = $request->query->get("status", "all");
 
-        return $this->render('main/list.html.twig', [
-            'contacts' => $contacts,
-            'currentStatus' => $status,
-            'currentPage' => $page,
-            'totalPages' => $totalPages,
-            'search' => $search,
+        if ($search) {
+            $contacts = $repository->search($search);
+        } elseif ($status === "all") {
+            $contacts = $repository->findAll();
+        } else {
+            $contacts = $repository->findBy(["status" => $status]);
+        }
+
+        $totalContacts = count($contacts);
+        $totalPages = ceil($totalContacts / $limit);
+        $contacts = array_slice($contacts, ($page - 1) * $limit, $limit);
+
+        return $this->render("main/list.html.twig", [
+            "contacts" => $contacts,
+            "currentPage" => $page,
+            "totalPages" => $totalPages,
+            "search" => $search,
+            "currentStatus" => $status,
         ]);
     }
 }
