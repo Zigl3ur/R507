@@ -71,6 +71,10 @@ final class MainController extends AbstractController
     #[Route('/liste/{page}', name: 'list')]
     public function list(ContactRepository $repository, Request $request, ?int $page = 1): Response
     {
+        $search = $request->query->get('search');
+        $contacts = $search
+            ? $repository->search($search)
+            : $repository->findAll();
         $limit = 2;
         $contacts = $repository->paginate($page, $limit);
         $totalPages = ceil($repository->count() / $limit);
@@ -79,6 +83,7 @@ final class MainController extends AbstractController
             'contacts' => $contacts,
             'currentPage' => $page,
             'totalPages' => $totalPages,
+            'search' => $search,
         ]);
     }
 }
