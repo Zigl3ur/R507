@@ -2,6 +2,8 @@
     "type": "project",
     "license": "proprietary",
     "minimum-stability": "dev",
+    "name": "app/r507",
+    "description": "R507",
     "prefer-stable": true,
     "require": {
         "php": ">=8.2",
