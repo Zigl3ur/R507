@@ -1,0 +1,33 @@
+name: CD
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: read
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.4"
+
+            - name: Install dependencies
+              run: composer install --prefer-dist --no-progress --ignore-platform-req=ext-redis
+
+            - name: Copy files on remote
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+              with:
+                  server: ${{ secrets.ftp_server }}
+                  username: ${{ secrets.ftp_username }}
+                  password: ${{ secrets.ftp_password }}
+                  exclude: |
+                      **/var/*
