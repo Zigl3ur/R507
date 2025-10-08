@@ -38,5 +38,5 @@ jobs:
                   port: 21
                   timeout: 60000
                   exclude: |
-                      .git*
+                      .git/*
                       var/*
