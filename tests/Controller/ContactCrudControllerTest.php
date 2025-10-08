@@ -4,7 +4,7 @@ namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class ContactCrudControllerTestsTest extends WebTestCase
+class ContactCrudControllerTest extends WebTestCase
 {
     public function testPageTitle(): void
     {
@@ -34,9 +34,30 @@ class ContactCrudControllerTestsTest extends WebTestCase
         $form = $crawler->selectButton('Envoyer')->form();
         $form['form[firstName]'] = 'John';
         $form['form[name]'] = 'Doe';
-        $form['form[message]'] = 'This is a test message.';
+        $form['form[message]'] = 'test message';
 
         $client->submit($form);
         $this->assertResponseRedirects('/');
+
+        $client->request('GET', '/liste');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('table', 'John');
+        $this->assertSelectorTextContains('table', 'Doe');
+    }
+
+    public function testEmptyFormSubmission(): void
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/');
+
+        $form = $crawler->selectButton('Envoyer')->form();
+        $form['form[firstName]'] = '';
+        $form['form[name]'] = '';
+        $form['form[message]'] = '';
+
+        $client->submit($form);
+
+        $this->assertResponseStatusCodeSame(500);
     }
 }
