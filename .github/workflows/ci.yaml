@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
 
     services:
@@ -19,6 +19,7 @@ jobs:
           MYSQL_USER: app
           MYSQL_PASSWORD: password
           MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: app_test
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -46,9 +47,6 @@ jobs:
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --ignore-platform-req=ext-redis
-
-      - name: Create DB
-        run: php bin/console --env=test doctrine:database:create --no-interaction
 
       - name: Run Migrations
         run: php bin/console --env=test doctrine:migrations:migrate --no-interaction
