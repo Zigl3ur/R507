@@ -4,12 +4,23 @@ on:
   push:
     branches:
       - develop
+      - feat/ci
 permissions:
   contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_USER: app
+          MYSQL_ROOT_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - uses: actions/checkout@v4
@@ -28,6 +39,12 @@ jobs:
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --ignore-platform-req=ext-redis
+
+      - name: Create DB
+        run: vendor/bin/console --env=test doctrine:database:create --no-interaction
+
+      - name: Run Migrations
+        run: vendor/bin/console --env=test doctrine:migrations:migrate --no-interaction
 
       - name: Run Tests
         run: vendor/bin/phpunit
