@@ -4,6 +4,7 @@ on:
         workflows: ["CI"]
         branches:
             - develop
+            - master
         types:
             - completed
 permissions:
