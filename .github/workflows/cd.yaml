@@ -2,16 +2,16 @@ name: CD
 on:
     workflow_run:
         workflows: ["CI"]
-        types:
-            - completed
         branches:
             - develop
+        types:
+            - completed
 permissions:
     contents: read
 
 jobs:
     deploy:
-        if: github.event.workflow_run.conclusion == 'success'
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
         runs-on: ubuntu-latest
 
         steps:
@@ -36,3 +36,6 @@ jobs:
                   protocol: ftp
                   port: 21
                   timeout: 60000
+                  exclude: |
+                      .git*
+                      var/*
